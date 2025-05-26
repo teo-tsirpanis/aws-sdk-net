@@ -68,11 +68,11 @@ namespace Amazon.Runtime.Internal.Transform
                 {
                     if (context.TestExpression("Error/Type"))
                     {
-                        try
+                        if (Enum.TryParse(context.ReadText(), true, out ErrorType errorType))
                         {
-                            response.Type = (ErrorType)Enum.Parse(typeof(ErrorType), StringUnmarshaller.GetInstance().Unmarshall(context), true);
+                            response.Type = errorType;
                         }
-                        catch (ArgumentException)
+                        else
                         {
                             response.Type = ErrorType.Unknown;
                         }

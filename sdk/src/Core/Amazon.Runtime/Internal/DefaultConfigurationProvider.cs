@@ -62,14 +62,15 @@ namespace Amazon.Runtime.Internal
                 new DefaultConfigurationAutoModeResolver(
                     new RuntimeInformationProvider(),
                     EnvironmentVariableSource.Instance.EnvironmentVariableRetriever),
-                availableConfigurations) { }
+                availableConfigurations)
+        { }
 
         /// <inheritdoc cref="IDefaultConfigurationProvider"/>
         public DefaultConfigurationProvider(
             IEnvironmentVariableRetriever environmentVariableRetriever,
             IDefaultConfigurationAutoModeResolver defaultConfigurationAutoModeResolver,
             IEnumerable<IDefaultConfiguration> availableConfigurations)
-            : this (environmentVariableRetriever, defaultConfigurationAutoModeResolver, availableConfigurations.ToArray()) { }
+            : this(environmentVariableRetriever, defaultConfigurationAutoModeResolver, availableConfigurations.ToArray()) { }
 
         /// <inheritdoc cref="IDefaultConfigurationProvider"/>
         public DefaultConfigurationProvider(
@@ -109,13 +110,11 @@ namespace Amazon.Runtime.Internal
 
             try
             {
-                var mode =
-                    (DefaultConfigurationMode)
-                    Enum.Parse(typeof(DefaultConfigurationMode), defaultConfigurationModeName, ignoreCase: true);
+                var mode = AWSSDKUtils.EnumParse<DefaultConfigurationMode>(defaultConfigurationModeName, ignoreCase: true);
 
                 if (mode == DefaultConfigurationMode.Auto)
                     mode = _defaultConfigurationAutoModeResolver.Resolve(clientRegion, () => EC2InstanceMetadata.Region);
-               
+
                 // save resolved values to cache
                 return _availableConfigurations.First(x => x.Name == mode);
             }
@@ -123,7 +122,7 @@ namespace Amazon.Runtime.Internal
             {
                 throw new AmazonClientException(
                     $"Failed to find requested Default Configuration Mode '{defaultConfigurationModeName}'.  " +
-                    $"Valid values are {string.Join(",", Enum.GetNames(typeof(DefaultConfigurationMode)))}");
+                    $"Valid values are {string.Join(",", AWSSDKUtils.EnumGetNames<DefaultConfigurationMode>())}");
             }
         }
     }

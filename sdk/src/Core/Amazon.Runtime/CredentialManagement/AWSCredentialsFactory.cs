@@ -351,15 +351,10 @@ namespace Amazon.Runtime.CredentialManagement
         {
 
             AWSCredentials credentials;
-            CredentialSourceType type;
-            try
-            {
-                type = (CredentialSourceType)Enum.Parse(typeof(CredentialSourceType), credentialSourceType, true);
-            }
-            catch
+            if (!Enum.TryParse(credentialSourceType, true, out CredentialSourceType type))
             {
                 return ThrowOrReturnNull(string.Format(CultureInfo.InvariantCulture,
-                            "Credential source [{0}] is invalid.", credentialSourceType), null, throwIfInvalid);
+                            "Credential source [{0}] is not specified.", credentialSourceType), null, throwIfInvalid);
             }
 
             switch (type)

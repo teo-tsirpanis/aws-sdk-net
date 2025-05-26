@@ -1173,6 +1173,23 @@ namespace Amazon.Util
             return encoded.ToString();
         }
 
+        internal static T EnumParse<T>(string value, bool ignoreCase = false) where T : struct
+        {
+#if NETCOREAPP
+            return Enum.Parse<T>(value, ignoreCase);
+#else
+            return (T)Enum.Parse(typeof(T), value, ignoreCase);
+#endif
+        }
+
+        internal static string[] EnumGetNames<T>() where T : struct, Enum
+        {
+#if NET
+            return Enum.GetNames<T>();
+#else
+            return Enum.GetNames(typeof(T));
+#endif
+        }
 
         /// <summary>
         /// Generates an MD5 Digest for the stream specified

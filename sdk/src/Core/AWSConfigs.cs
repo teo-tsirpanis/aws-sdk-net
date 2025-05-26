@@ -21,12 +21,10 @@
 
 using System;
 using System.ComponentModel;
-using System.Globalization;
 
 using Amazon.Util;
 using Amazon.Util.Internal;
 using System.Collections.Generic;
-using Amazon.Runtime;
 using Amazon.Runtime.Telemetry;
 
 namespace Amazon
@@ -460,48 +458,6 @@ namespace Amazon
             if (bool.TryParse(value, out result))
                 return result;
             return defaultValue;
-        }
-
-        private static T GetConfigEnum<T>(string name)
-        {
-            var type = typeof(T);
-            if (!type.IsEnum) throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Type {0} must be enum", type.FullName));
-
-            string value = GetConfig(name);
-            if (string.IsNullOrEmpty(value))
-                return default(T);
-            T result = ParseEnum<T>(value);
-            return result;
-        }
-
-        private static T ParseEnum<T>(string value)
-        {
-            T t;
-            if (TryParseEnum<T>(value, out t))
-                return t;
-            Type type = typeof(T);
-            string messageFormat = "Unable to parse value {0} as enum of type {1}. Valid values are: {2}";
-            string enumNames = string.Join(", ", Enum.GetNames(type));
-            throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, messageFormat, value, type.FullName, enumNames));
-        }
-
-        private static bool TryParseEnum<T>(string value, out T result)
-        {
-            result = default(T);
-
-            if (string.IsNullOrEmpty(value))
-                return false;
-
-            try
-            {
-                T t = (T)Enum.Parse(typeof(T), value, true);
-                result = t;
-                return true;
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
         }
 
         /// <summary>

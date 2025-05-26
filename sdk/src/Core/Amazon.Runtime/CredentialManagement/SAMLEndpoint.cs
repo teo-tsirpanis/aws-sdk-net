@@ -63,7 +63,7 @@ namespace Amazon.Runtime.CredentialManagement
 
             if (!string.IsNullOrEmpty(authenticationType))
             {
-                parsedAuthenticationType = (SAMLAuthenticationType)Enum.Parse(typeof(SAMLAuthenticationType), authenticationType);
+                parsedAuthenticationType = AWSSDKUtils.EnumParse<SAMLAuthenticationType>(authenticationType);
             }
 
             SetProperties(name, parsedEndpointUri, parsedAuthenticationType);

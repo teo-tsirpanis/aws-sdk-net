@@ -222,7 +222,11 @@ namespace Amazon.Runtime.Internal
                 }
                 else if (typeof(T).IsEnum)
                 {
+#if NET
+                    convertedValue = Enum.Parse<T>(value, true);
+#else
                     convertedValue = Enum.Parse(typeof(T), value, true);
+#endif
                 }
                 else if (typeof(T) == typeof(string))
                 {
