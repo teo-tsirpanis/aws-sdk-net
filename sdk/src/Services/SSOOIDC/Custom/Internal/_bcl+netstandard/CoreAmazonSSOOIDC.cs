@@ -45,7 +45,7 @@ namespace Amazon.SSOOIDC.Internal
         {
             public void Sleep(int ms)
             {
-                AWSSDKUtils.Sleep(ms);
+                Thread.Sleep(ms);
             }
         }
 

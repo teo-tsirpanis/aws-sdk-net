@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 using Amazon.Runtime;
 
 namespace Amazon.Util
@@ -149,7 +150,7 @@ namespace Amazon.Util
 
                 var delay = (int) (Math.Pow(4, retries) * 100);
                 delay = Math.Min(delay, 30 * 1000);
-                AWSSDKUtils.Sleep(delay);
+                Thread.Sleep(delay);
             }
 
             return null;

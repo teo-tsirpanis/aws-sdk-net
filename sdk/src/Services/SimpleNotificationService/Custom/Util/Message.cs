@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 using Amazon.Runtime;
 using Amazon.Util;
@@ -495,7 +496,7 @@ namespace Amazon.SimpleNotificationService.Util
                                 throw new AmazonClientException(string.Format(CultureInfo.InvariantCulture,
                                     "Unable to download signing cert after {0} retries", MAX_RETRIES), e);
                             else
-                                AWSSDKUtils.Sleep((int)(Math.Pow(4, retries) * 100));
+                                Thread.Sleep((int)(Math.Pow(4, retries) * 100));
                         }
                     }
                 }
@@ -541,7 +542,7 @@ namespace Amazon.SimpleNotificationService.Util
                         throw new AmazonClientException(string.Format(CultureInfo.InvariantCulture,
                             "Unable to {0} after {1} retries", action, MAX_RETRIES), e);
                     else
-                        AWSSDKUtils.Sleep((int)(Math.Pow(4, retries) * 100));
+                        Thread.Sleep((int)(Math.Pow(4, retries) * 100));
                 }
             }
         }

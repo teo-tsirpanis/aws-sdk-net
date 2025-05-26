@@ -348,7 +348,7 @@ namespace Amazon.Runtime.Internal
 
         protected virtual void WaitForToken(int delayMs)
         {
-            AWSSDKUtils.Sleep(delayMs);
+            Thread.Sleep(delayMs);
         }
 
 #if AWS_ASYNC_API

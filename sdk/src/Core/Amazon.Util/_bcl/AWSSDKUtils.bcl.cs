@@ -104,10 +104,5 @@ namespace Amazon.Util
             // The system default has been explicitly changed so we will honor that value.
             return ServicePointManager.MaxServicePointIdleTime;
         }
-
-        public static void Sleep(int ms)
-        {
-            System.Threading.Thread.Sleep(ms);
-        }
     }
 }

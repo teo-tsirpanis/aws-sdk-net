@@ -114,7 +114,7 @@ namespace Amazon.StorageGateway.Util
 
                 int delay = (int)(Math.Pow(4, retries) * 100);
                 delay = Math.Min(delay, maxBackoff);
-                AWSSDKUtils.Sleep(delay);
+                Thread.Sleep(delay);
             }
 
             throw new AmazonStorageGatewayException("Unable to get activation key; retries exhausted");

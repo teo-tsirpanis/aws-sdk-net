@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Amazon.Runtime
@@ -107,7 +108,7 @@ namespace Amazon.Runtime
                     }
                 };
 
-                AWSSDKUtils.Sleep(retry.Next());
+                Thread.Sleep(retry.Next());
             }
 
             return new CredentialsRefreshState(new ImmutableCredentials(credentials.AccessKeyId, credentials.SecretAccessKey, credentials.Token, credentials.AccountId), credentials.Expiration);

@@ -83,7 +83,7 @@ namespace Amazon.DNXCore.IntegrationTests.IntegrationTests.EC2
         {
             await terminateVPCInstanceAsync(vpcid);
 
-            AWSSDKUtils.Sleep(1000);
+            Thread.Sleep(1000);
 
             await disassociateAndDeleteDhcpOptionSet(vpcid);
             await deleteSubnetsAsync(vpcid);

@@ -1253,7 +1253,12 @@ namespace Amazon.Util
 
         public static void Sleep(TimeSpan ts)
         {
-            Sleep((int)ts.TotalMilliseconds);
+            Thread.Sleep(ts);
+        }
+
+        public static void Sleep(int milliseconds)
+        {
+            Thread.Sleep(milliseconds);
         }
 
         /// <summary>

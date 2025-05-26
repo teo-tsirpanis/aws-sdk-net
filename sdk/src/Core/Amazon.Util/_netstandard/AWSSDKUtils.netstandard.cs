@@ -18,14 +18,6 @@
  *  AWS SDK for .NET
  */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
-
-using Microsoft.Win32;
-using System.Globalization;
 
 namespace Amazon.Util
 {
@@ -47,15 +39,7 @@ namespace Amazon.Util
 
         internal static int GetConnectionLimit(int? clientConfigValue)
         {
-            if (clientConfigValue.HasValue)
-                return clientConfigValue.Value;
-
-            return AWSSDKUtils.DefaultConnectionLimit;
-        }
-
-        public static void Sleep(int ms)
-        {
-            System.Threading.Thread.Sleep(ms);
+            return clientConfigValue.GetValueOrDefault(DefaultConnectionLimit);
         }
     }
 }

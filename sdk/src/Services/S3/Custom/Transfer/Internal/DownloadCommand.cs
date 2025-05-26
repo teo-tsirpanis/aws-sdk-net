@@ -148,7 +148,7 @@ namespace Amazon.S3.Transfer.Internal
         {
             int delay = (int)(Math.Pow(4, retries) * 100);
             delay = Math.Min(delay, MAX_BACKOFF_IN_MILLISECONDS);
-            AWSSDKUtils.Sleep(delay);
+            Thread.Sleep(delay);
         }
 
         /// <summary>

@@ -13,9 +13,9 @@
 * permissions and limitations under the License.
 */
 
-using Amazon.Util;
 using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Amazon.Runtime.Internal
@@ -238,7 +238,7 @@ namespace Amazon.Runtime.Internal
         /// <param name="maxBackoffInMilliseconds">The max number of milliseconds to wait</param>
         public static void WaitBeforeRetry(int retries, int maxBackoffInMilliseconds)
         {
-            AWSSDKUtils.Sleep(CalculateRetryDelay(retries, maxBackoffInMilliseconds));
+            Thread.Sleep(CalculateRetryDelay(retries, maxBackoffInMilliseconds));
         }
 
         private static int CalculateRetryDelay(int retries, int maxBackoffInMilliseconds)
