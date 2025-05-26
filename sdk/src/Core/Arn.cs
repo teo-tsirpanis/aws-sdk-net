@@ -56,7 +56,7 @@ namespace Amazon
                 }
                 else
                 {
-                    if (value != "*" && value.ToCharArray().Any(x => !char.IsLetterOrDigit(x) && x != '-'))
+                    if (value != "*" && value.Any(x => !char.IsLetterOrDigit(x) && x != '-'))
                     {
                         throw new AmazonAccountIdException("AccountId is invalid. The AccountId should be '*' or must only contain alphanumeric characters and dashes.");
                     }
