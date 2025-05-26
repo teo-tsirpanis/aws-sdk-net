@@ -14,32 +14,21 @@
 */
 
 using Amazon.Util;
-using AWSSDK.Runtime.Internal.Util;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace Amazon.Runtime.Internal
 {
     /// <summary>
     /// The default implementation of the legacy retry policy.
     /// </summary>
-    public partial class DefaultRetryPolicy : RetryPolicy
+    public class DefaultRetryPolicy : RetryPolicy
     {
         //The status code returned from a service request when an invalid endpoint is used.
         private const int INVALID_ENDPOINT_EXCEPTION_STATUSCODE = 421;
         //Holds on to the singleton instance.
         private static readonly CapacityManager _capacityManagerInstance = new CapacityManager(throttleRetryCount: 100, throttleRetryCost: 5, throttleCost: 1);
-
-        private static readonly HashSet<string> _netStandardRetryErrorMessages = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "The server returned an invalid or unrecognized response",
-            "The connection with the server was terminated abnormally",
-            "An error occurred while sending the request.",
-            "Failed sending data to the peer"
-        };
 
         /// <summary>
         /// The maximum value of exponential backoff in milliseconds, which will be used to wait
@@ -93,7 +82,18 @@ namespace Amazon.Runtime.Internal
         {
             return RetryForExceptionSync(exception, executionContext);
         }
-        
+
+        /// <summary>
+        /// Return true if the request should be retried.
+        /// </summary>
+        /// <param name="executionContext">Request context containing the state of the request.</param>
+        /// <param name="exception">The exception thrown by the previous request.</param>
+        /// <returns>Return true if the request should be retried.</returns>
+        public override Task<bool> RetryForExceptionAsync(IExecutionContext executionContext, Exception exception)
+        {
+            return Task.FromResult(RetryForExceptionSync(exception, executionContext));
+        }
+
         /// <summary>
         /// Virtual method that gets called when a retry request is initiated. If retry throttling is
         /// enabled, the value returned is true if the required capacity is retured, false otherwise. 
@@ -151,16 +151,7 @@ namespace Amazon.Runtime.Internal
                 _capacityManagerInstance.ReleaseCapacity(executionContext.RequestContext.LastCapacityType, RetryCapacity);
             }
         }
-        /// <summary>
-        /// Perform the processor-bound portion of the RetryForException logic.
-        /// This is shared by the sync, async, and APM versions of the RetryForException method.
-        /// </summary>
-        /// <param name="exception">The exception thrown by the previous request.</param>
-        /// <returns>Return true if the request should be retried.</returns>
-        private bool RetryForExceptionSync(Exception exception)
-        {
-            return RetryForExceptionSync(exception, null);
-        }
+
         /// <summary>
         /// Perform the processor-bound portion of the RetryForException logic.
         /// This is shared by the sync, async, and APM versions of the RetryForException method.
@@ -226,6 +217,17 @@ namespace Amazon.Runtime.Internal
         public override void WaitBeforeRetry(IExecutionContext executionContext)
         {
             DefaultRetryPolicy.WaitBeforeRetry(executionContext.RequestContext.Retries, this.MaxBackoffInMilliseconds);
+        }
+
+        /// <summary>
+        /// Waits before retrying a request.
+        /// </summary>
+        /// <param name="executionContext">The execution context which contains both the
+        /// requests and response context.</param>
+        public override Task WaitBeforeRetryAsync(IExecutionContext executionContext)
+        {
+            var delay = CalculateRetryDelay(executionContext.RequestContext.Retries, this.MaxBackoffInMilliseconds);
+            return Task.Delay(delay, executionContext.RequestContext.CancellationToken);
         }
 
         /// <summary>

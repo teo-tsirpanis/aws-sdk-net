@@ -22,8 +22,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Amazon.Util
@@ -57,6 +55,7 @@ namespace Amazon.Util
                 UseProxy = useProxy
             });
         }
+
         internal AWSHttpClient(HttpMessageHandler handler)
         {
             _httpClient = new HttpClient(handler);

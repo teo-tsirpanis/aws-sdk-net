@@ -14,19 +14,16 @@
 */
 
 using Amazon.Util;
-using AWSSDK.Runtime.Internal.Util;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace Amazon.Runtime.Internal
 {
     /// <summary>
     /// The default implementation of the standard retry policy.
     /// </summary>
-    public partial class StandardRetryPolicy : RetryPolicy
+    public class StandardRetryPolicy : RetryPolicy
     {
         private static Random _randomJitter = new Random();
                 
@@ -87,6 +84,17 @@ namespace Amazon.Runtime.Internal
         public override bool RetryForException(IExecutionContext executionContext, Exception exception)
         {
             return RetryForExceptionSync(exception, executionContext);
+        }
+
+        /// <summary>
+        /// Return true if the request should be retried.
+        /// </summary>
+        /// <param name="executionContext">Request context containing the state of the request.</param>
+        /// <param name="exception">The exception thrown by the previous request.</param>
+        /// <returns>Return true if the request should be retried.</returns>
+        public override Task<bool> RetryForExceptionAsync(IExecutionContext executionContext, Exception exception)
+        {
+            return Task.FromResult(RetryForExceptionSync(exception, executionContext));
         }
 
         /// <summary>
@@ -226,7 +234,18 @@ namespace Amazon.Runtime.Internal
         {
             StandardRetryPolicy.WaitBeforeRetry(executionContext.RequestContext.Retries, this.MaxBackoffInMilliseconds);
         }
-        
+
+        /// <summary>
+        /// Waits before retrying a request.
+        /// </summary>
+        /// <param name="executionContext">The execution context which contains both the
+        /// requests and response context.</param>
+        public override Task WaitBeforeRetryAsync(IExecutionContext executionContext)
+        {
+            var delay = CalculateRetryDelay(executionContext.RequestContext.Retries, this.MaxBackoffInMilliseconds);
+            return Task.Delay(delay, executionContext.RequestContext.CancellationToken);
+        }
+
         /// <summary>
         /// Waits for an amount of time using an exponential backoff with jitter algorithm.
         /// </summary>

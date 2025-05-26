@@ -19,13 +19,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Amazon.Runtime.Internal
 {
     /// <summary>
     /// The default implementation of the adaptive retry policy.
     /// </summary>
-    public partial class AdaptiveRetryPolicy : StandardRetryPolicy
+    public class AdaptiveRetryPolicy : StandardRetryPolicy
     {
         protected TokenBucket TokenBucket { get; set; } = new TokenBucket();
 
@@ -47,6 +48,28 @@ namespace Amazon.Runtime.Internal
         /// the service URL for the request.</param>
         public AdaptiveRetryPolicy(IClientConfig config) : base(config)
         {    
+        }
+
+        /// <summary>
+        /// Return true if the request should be retried.
+        /// </summary>
+        /// <param name="executionContext">Request context containing the state of the request.</param>
+        /// <param name="exception">The exception thrown by the previous request.</param>
+        /// <returns>Return true if the request should be retried.</returns>
+        public override Task<bool> RetryForExceptionAsync(IExecutionContext executionContext, Exception exception)
+        {
+            return Task.FromResult(RetryForExceptionSync(exception, executionContext));
+        }
+
+        /// <summary>
+        /// Waits before retrying a request.
+        /// </summary>
+        /// <param name="executionContext">The execution context which contains both the
+        /// requests and response context.</param>
+        public override Task WaitBeforeRetryAsync(IExecutionContext executionContext)
+        {
+            var delay = CalculateRetryDelay(executionContext.RequestContext.Retries, this.MaxBackoffInMilliseconds);
+            return Task.Delay(delay, executionContext.RequestContext.CancellationToken);
         }
 
         /// <summary>
@@ -86,7 +109,32 @@ namespace Amazon.Runtime.Internal
                 //Else we were unable to obtain capacity after looping. 
                 throw new AmazonClientException($"{whyFail}. There is insufficient capacity to attempt the request after attempting to obtain capacity multiple times.", exception);
             }
-        }                
+        }
+
+        /// <summary>
+        /// This method uses a token bucket to enforce the maximum sending rate.
+        /// </summary>
+        /// <param name="executionContext">The execution context which contains both the
+        /// requests and response context.</param>
+        /// <param name="exception">If the prior request failed, this exception is expected to be 
+        /// the exception that occurred during the prior request failure.</param>
+        public override async Task ObtainSendTokenAsync(IExecutionContext executionContext, Exception exception)
+        {
+            if (!await TokenBucket.TryAcquireTokenAsync(1, executionContext.RequestContext.ClientConfig.FastFailRequests,
+                executionContext.RequestContext.CancellationToken).ConfigureAwait(false))
+            {
+                var whyFail = exception == null ? "The initial request cannot be attempted because capacity could not be obtained"
+                    : "While attempting to retry a request error capacity could not be obtained";
+
+                if (executionContext.RequestContext.ClientConfig.FastFailRequests)
+                {
+                    throw new AmazonClientException($"{whyFail}. The client is configured to fail fast and there is insufficient capacity to attempt the request.", exception);
+                }
+
+                //Else we were unable to obtain capacity after looping. 
+                throw new AmazonClientException($"{whyFail}. There is insufficient capacity to attempt the request after attempting to obtain capacity multiple times.", exception);
+            }
+        }
 
         /// <summary>
         /// Virtual method that gets called on a success Response. If its a retry success response, the entire 
