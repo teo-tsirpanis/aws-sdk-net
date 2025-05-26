@@ -17,7 +17,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Amazon.Util;
-using Amazon.Util.Internal;
 using Amazon.Runtime.Internal.Auth;
 using System.Security.Cryptography;
 using System.Collections.Generic;
@@ -367,7 +366,7 @@ namespace Amazon.Runtime.Internal.Util
             try
             {
                 var header = Encoding.UTF8.GetBytes(chunkHeader.ToString());
-                var trailer = ArrayEx.Empty<byte>();
+                var trailer = Array.Empty<byte>();
 
                 // Append a trailing CRLF unless this is the final data chunk and there are trailing headers 
                 if (!(isFinalDataChunk && _trailingHeaders?.Count > 0))
@@ -408,7 +407,7 @@ namespace Amazon.Runtime.Internal.Util
             // If the trailing headers included a trailing checksum, set the hash value
             if (_hashAlgorithm != null)
             {
-                _hashAlgorithm.TransformFinalBlock(ArrayEx.Empty<byte>(), 0, 0);
+                _hashAlgorithm.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
                 _trailingHeaders[ChecksumUtils.GetChecksumHeaderKey(_trailingChecksum)] = Convert.ToBase64String(_hashAlgorithm.Hash);
             }
 

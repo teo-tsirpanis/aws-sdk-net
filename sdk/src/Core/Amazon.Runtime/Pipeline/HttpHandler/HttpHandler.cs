@@ -20,11 +20,9 @@ using Amazon.Runtime.Telemetry;
 using Amazon.Runtime.Telemetry.Tracing;
 using Amazon.Runtime.Telemetry.Metrics;
 using Amazon.Util;
-using Amazon.Util.Internal;
 using System;
 using System.Globalization;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using Amazon.Runtime.Internal.UserAgent;
 
@@ -403,7 +401,7 @@ namespace Amazon.Runtime.Internal
                     }
                     else
                     {
-                        request.Content = ArrayEx.Empty<byte>();
+                        request.Content = Array.Empty<byte>();
                     }
                 }
 

@@ -13,15 +13,10 @@
  * permissions and limitations under the License.
  */
 
-using Amazon.Util.Internal;
 using Amazon.Runtime.Internal.Util;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Xml;
 using ThirdParty.Ionic.Zlib;
-using System.Text.Json;
 
 namespace Amazon.Runtime.Internal.Transform
 {
@@ -67,7 +62,7 @@ namespace Amazon.Runtime.Internal.Transform
             }
             else
             {
-                return ArrayEx.Empty<byte>();
+                return Array.Empty<byte>();
             }
         }
 

@@ -171,7 +171,7 @@ namespace Amazon.Runtime.Internal.Util
                 {
                     if (_hashAlgorithm != null)
                     {
-                        _hashAlgorithm.TransformFinalBlock(ArrayEx.Empty<byte>(), 0, 0);
+                        _hashAlgorithm.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
                     }
                     _haveFinishedStream = true;
                     _suffix = GenerateTrailingHeaderChunk();

@@ -1236,9 +1236,7 @@ namespace Amazon.Util
         public static string GenerateChecksumForBytes(byte[] content, bool fBase64Encode)
         {
 
-            var hashed = content != null ?
-                CryptoUtilFactory.CryptoInstance.ComputeMD5Hash(content) :
-                CryptoUtilFactory.CryptoInstance.ComputeMD5Hash(ArrayEx.Empty<byte>());
+            var hashed = CryptoUtilFactory.CryptoInstance.ComputeMD5Hash(content ?? Array.Empty<byte>());
 
             if (fBase64Encode)
             {
