@@ -14,7 +14,6 @@
  */
 using Amazon.Runtime;
 using Amazon.Runtime.Internal.Util;
-using Amazon.Util.Internal;
 using AWSSDK.Runtime.Internal.Util;
 using System;
 using System.Buffers;
@@ -32,7 +31,7 @@ namespace Amazon.Util
         private const int CRC32_BASE64_LENGTH = 8;
         private const int CRC64NVME_BASE64_LENGTH = 12;
 
-        static CryptoUtil util = new CryptoUtil();
+        static readonly CryptoUtil util = new CryptoUtil();
 
         public static ICryptoUtil CryptoInstance
         {
@@ -49,10 +48,7 @@ namespace Amazon.Util
             switch (algorithm)
             {
                 case CoreChecksumAlgorithm.SHA1:
-                    // Disable this warning of SHA1 being obsolete because we have some use cases we need it.
-#pragma warning disable SYSLIB0021
-                    return new SHA1Managed();
-#pragma warning restore
+                    return SHA1.Create();
 
                 case CoreChecksumAlgorithm.SHA256:
                     return CryptoUtil.CreateSHA256Instance();
@@ -133,13 +129,14 @@ namespace Amazon.Util
             /// <returns>Computed hash code</returns>
             public byte[] ComputeSHA1Hash(byte[] data)
             {
-// Disable this warning of SHA1 being obsolete because we have some use cases we need it.
-#pragma warning disable SYSLIB0021
-                using (var sha1 = new SHA1Managed())
+#if NET
+                return SHA1.HashData(data);
+#else
+                using (var sha1 = SHA1.Create())
                 {
                     return sha1.ComputeHash(data);
                 }
-#pragma warning restore SYSLIB0021
+#endif
             }
 
             /// <summary>
@@ -149,7 +146,11 @@ namespace Amazon.Util
             /// <returns>Computed hash code</returns>
             public byte[] ComputeSHA256Hash(byte[] data)
             {
+#if NET
+                return SHA256.HashData(data);
+#else
                 return SHA256HashAlgorithmInstance.ComputeHash(data);
+#endif
             }
 
             /// <summary>
@@ -159,7 +160,11 @@ namespace Amazon.Util
             /// <returns>Computed hash code</returns>
             public byte[] ComputeSHA256Hash(Stream steam)
             {
+#if NET
+                return SHA256.HashData(steam);
+#else
                 return SHA256HashAlgorithmInstance.ComputeHash(steam);
+#endif
             }
 
             /// <summary>
@@ -284,6 +289,7 @@ namespace Amazon.Util
                 return algorithm;
             }
 
+#if !NET
             [ThreadStatic]
             private static HashAlgorithm _hashAlgorithm = null;
             private static HashAlgorithm SHA256HashAlgorithmInstance
@@ -297,6 +303,7 @@ namespace Amazon.Util
                     return _hashAlgorithm;
                 }
             }
+#endif
 
             internal static HashAlgorithm CreateSHA256Instance()
             {
