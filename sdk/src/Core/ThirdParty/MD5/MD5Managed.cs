@@ -21,6 +21,7 @@ namespace ThirdParty.MD5
 
         public MD5Managed()
         {
+            base.HashSizeValue = 0x80;
             this.Initialize();
         }
 
@@ -80,8 +81,8 @@ namespace ThirdParty.MD5
 
         protected override byte[] HashFinal()
         {
-            var finalValue = MD5Core.GetHashFinalBlock(_data, 0, _dataSize, _abcd, _totalLength * 8);
-            return finalValue;
+            base.HashValue = MD5Core.GetHashFinalBlock(_data, 0, _dataSize, _abcd, _totalLength * 8);
+            return base.HashValue;
         }
     }
 }
