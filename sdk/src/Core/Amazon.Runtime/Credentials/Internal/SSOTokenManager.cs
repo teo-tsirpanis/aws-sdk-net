@@ -35,12 +35,11 @@ namespace Amazon.Runtime.Credentials.Internal
 
 #endif
 
-#if AWS_ASYNC_API
         Task<SsoToken> GetTokenAsync(SSOTokenManagerGetTokenOptions options, CancellationToken cancellationToken = default);
         Task LogoutAsync(string ssoCacheDirectory = null, CancellationToken cancellationToken = default);
         Task LogoutAsync(SSOTokenManagerGetTokenOptions options, CancellationToken cancellationToken = default);
-#endif
     }
+
     public class SSOTokenManager : ISSOTokenManager
     {
         private readonly ILogger _logger = Logger.GetLogger(typeof(SSOTokenManager));
@@ -107,8 +106,6 @@ namespace Amazon.Runtime.Credentials.Internal
             }
         }
 
-#if BCL || AWS_ASYNC_API
-
         private class RefreshState
         {
             public bool FailedLastRefreshAttempt { get; set; }
@@ -128,7 +125,6 @@ namespace Amazon.Runtime.Credentials.Internal
             public SsoToken Token { get; set; }
             public RefreshState RefreshState { get; set; }
         }
-#endif
 
 #if BCL
         public SsoToken GetToken(SSOTokenManagerGetTokenOptions options)
@@ -387,7 +383,6 @@ namespace Amazon.Runtime.Credentials.Internal
 
 #endif
 
-#if AWS_ASYNC_API
         public async Task<SsoToken> GetTokenAsync(SSOTokenManagerGetTokenOptions options, CancellationToken cancellationToken = default)
         {
             CacheState inMemoryToken = null;
@@ -681,7 +676,6 @@ namespace Amazon.Runtime.Credentials.Internal
 
             return emptyProperties;
         }
-#endif
 
         private static SsoToken MapGetSsoTokenResponseToSsoToken(GetSsoTokenResponse response, string session)
         {

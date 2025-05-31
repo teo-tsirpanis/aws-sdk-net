@@ -15,9 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Text;
 using Amazon.Runtime.Internal.UserAgent;
 using Amazon.Runtime.Telemetry;
 using Amazon.Runtime.Telemetry.Metrics;
@@ -45,7 +42,6 @@ namespace Amazon.Runtime.Internal
             base.InvokeSync(executionContext);
         }
 
-#if AWS_ASYNC_API 
         /// <summary>
         /// Calls pre invoke logic before calling the next handler 
         /// in the pipeline.
@@ -59,7 +55,6 @@ namespace Amazon.Runtime.Internal
             PreInvoke(executionContext);
             return base.InvokeAsync<T>(executionContext);
         }
-#endif
 
         /// <summary>
         /// Marshalls the request before calling invoking the next handler.

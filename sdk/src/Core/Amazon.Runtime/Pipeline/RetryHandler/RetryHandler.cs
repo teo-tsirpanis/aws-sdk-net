@@ -19,7 +19,9 @@ using Amazon.Runtime.Telemetry;
 using Amazon.Runtime.Telemetry.Metrics;
 using Amazon.Util;
 using System;
+#if BCL
 using System.Net;
+#endif
 
 namespace Amazon.Runtime.Internal
 {
@@ -118,8 +120,6 @@ namespace Amazon.Runtime.Internal
             } while (shouldRetry);
         }
 
-#if AWS_ASYNC_API 
-
         /// <summary>
         /// Invokes the inner handler and performs a retry, if required as per the
         /// retry policy.
@@ -189,8 +189,6 @@ namespace Amazon.Runtime.Internal
             throw new AmazonClientException("Neither a response was returned nor an exception was thrown in the Runtime RetryHandler.");
         }
 
-#endif
-
         /// <summary>
         /// Prepares the request for retry.
         /// </summary>
@@ -225,8 +223,7 @@ namespace Amazon.Runtime.Internal
         private void LogForRetry(IRequestContext requestContext, Exception exception)
         {
 #if !NETSTANDARD
-            var webException = exception as WebException;
-            if (webException != null)
+            if (exception is WebException webException)
             {
                 Logger.InfoFormat("WebException ({1}) making request {2} to {3}. Attempting retry {4} of {5}.",
                           webException.Status,
@@ -234,19 +231,15 @@ namespace Amazon.Runtime.Internal
                           requestContext.Request.Endpoint.ToString(),
                           requestContext.Retries,
                           this.RetryPolicy.MaxRetries);
-            }
-            else
-            {
-#endif
-                Logger.InfoFormat("{0} making request {1} to {2}. Attempting retry {3} of {4}.",
-                              exception.GetType().Name,
-                              requestContext.RequestName,
-                              requestContext.Request.Endpoint.ToString(),
-                              requestContext.Retries,
-                              this.RetryPolicy.MaxRetries);
-#if !NETSTANDARD
+                return;
             }
 #endif
+            Logger.InfoFormat("{0} making request {1} to {2}. Attempting retry {3} of {4}.",
+                          exception.GetType().Name,
+                          requestContext.RequestName,
+                          requestContext.Request.Endpoint.ToString(),
+                          requestContext.Retries,
+                          this.RetryPolicy.MaxRetries);
         }
 
         private void LogForError(IRequestContext requestContext, Exception exception)

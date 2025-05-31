@@ -18,9 +18,7 @@ using Amazon.Runtime.Internal.Compression;
 using System.IO;
 using System.Threading;
 using System;
-#if AWS_ASYNC_API
 using System.Threading.Tasks;
-#endif
 
 namespace Amazon.Runtime.Internal.Util
 {
@@ -124,8 +122,6 @@ namespace Amazon.Runtime.Internal.Util
             }
         }
 
-
-#if AWS_ASYNC_API
         /// <summary>
         /// Reads a sequence of bytes from the current stream and compresses it. The compressed bytes
         /// are written into internal buffer <see cref="_outputBufferStream"/>. If the count of compressed bytes
@@ -186,20 +182,6 @@ namespace Amazon.Runtime.Internal.Util
                 return await _outputBufferStream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
             }
         }
-#endif
-
-
-#if !NETSTANDARD
-        /// <summary>
-        /// Closes the compression and memory streams
-        /// </summary>
-        public override void Close()
-        {
-            _compressionStream.Close();
-            _outputBufferStream.Close();
-            base.Close();
-        }
-#endif
 
         /// <summary>
         /// Disposes the compression and memory streams

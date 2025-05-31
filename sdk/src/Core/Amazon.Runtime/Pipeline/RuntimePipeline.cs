@@ -16,7 +16,6 @@
 using Amazon.Runtime.Internal.Util;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
@@ -136,7 +135,6 @@ namespace Amazon.Runtime.Internal
             return executionContext.ResponseContext;
         }
 
-#if AWS_ASYNC_API
         /// <summary>
         /// Invokes the pipeline asynchronously.
         /// </summary>
@@ -149,7 +147,6 @@ namespace Amazon.Runtime.Internal
 
             return _handler.InvokeAsync<T>(executionContext);
         }
-#endif
 
         #endregion
 

@@ -38,9 +38,7 @@ using System.Threading;
 using Amazon.Runtime.Endpoints;
 using ThirdParty.RuntimeBackports;
 
-#if AWS_ASYNC_API
 using System.Threading.Tasks;
-#endif
 #if NETSTANDARD
 using System.Net.Http;
 using System.Runtime.InteropServices;
@@ -1696,7 +1694,7 @@ namespace Amazon.Util
                 };    
             }
         }
-#if AWS_ASYNC_API
+
         [SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public static async Task<ProcessExecutionResult> RunProcessAsync(ProcessStartInfo processStartInfo)
         {
@@ -1728,7 +1726,6 @@ namespace Amazon.Util
             }
 
         }
-#endif
 
         /// <summary>
         /// This method allows to check whether a property of an object returned by a service call

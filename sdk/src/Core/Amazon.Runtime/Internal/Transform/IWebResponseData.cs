@@ -13,11 +13,8 @@
  * permissions and limitations under the License.
  */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace Amazon.Runtime.Internal.Transform
 {
@@ -38,8 +35,6 @@ namespace Amazon.Runtime.Internal.Transform
     {
         Stream OpenResponse();
 
-#if AWS_ASYNC_API
         System.Threading.Tasks.Task<Stream> OpenResponseAsync();
-#endif
     }
 }

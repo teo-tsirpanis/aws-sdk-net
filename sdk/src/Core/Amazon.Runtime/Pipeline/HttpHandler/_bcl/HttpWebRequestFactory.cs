@@ -22,10 +22,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
-#if AWS_ASYNC_API
 using System.Threading;
 using System.Threading.Tasks;
-#endif
 
 namespace Amazon.Runtime.Internal
 {
@@ -223,7 +221,6 @@ namespace Amazon.Runtime.Internal
             throw new NotImplementedException();
         }
 
-#if AWS_ASYNC_API
         /// <summary>
         /// Writes a stream to the request body.
         /// </summary>
@@ -280,7 +277,7 @@ namespace Amazon.Runtime.Internal
         /// <param name="content">The content stream to be written.</param>
         /// <param name="contentHeaders">HTTP content headers.</param>
         /// <param name="cancellationToken"></param>
-        public async Task WriteToRequestBodyAsync(Stream requestContent, byte[] content, IDictionary<string, string> contentHeaders, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task WriteToRequestBodyAsync(Stream requestContent, byte[] content, IDictionary<string, string> contentHeaders, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             using (requestContent)
@@ -341,7 +338,7 @@ namespace Amazon.Runtime.Internal
         /// </summary>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
         /// <returns></returns>
-        public virtual async Task<IWebResponseData> GetResponseAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async Task<IWebResponseData> GetResponseAsync(CancellationToken cancellationToken)
         {
             using (var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             using (linkedTokenSource.Token.Register(() => this.Abort(), useSynchronizationContext: false))
@@ -380,7 +377,6 @@ namespace Amazon.Runtime.Internal
                 }
             }
         }
-#endif
 
         /// <summary>
         /// Configures a request as per the request context.

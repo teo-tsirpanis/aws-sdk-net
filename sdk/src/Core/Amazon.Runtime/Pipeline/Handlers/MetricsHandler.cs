@@ -14,8 +14,6 @@
  */
 
 using Amazon.Util;
-using Amazon.Runtime.Internal.Util;
-using System.Globalization;
 using System;
 using Amazon.Runtime.Telemetry;
 using Amazon.Runtime.Telemetry.Tracing;
@@ -68,7 +66,6 @@ namespace Amazon.Runtime.Internal
             }
         }
 
-#if AWS_ASYNC_API 
         /// <summary>
         /// Captures the overall execution time and logs final metrics.
         /// </summary>
@@ -112,6 +109,5 @@ namespace Amazon.Runtime.Internal
                 span.Dispose();
             }            
         }
-#endif
     }
 }

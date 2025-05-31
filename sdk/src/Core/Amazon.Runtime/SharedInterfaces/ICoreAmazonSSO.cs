@@ -29,12 +29,9 @@ namespace Amazon.Runtime.SharedInterfaces
     {
 #if BCL
         ImmutableCredentials CredentialsFromSsoAccessToken(string accountId, string roleName, string accessToken, IDictionary<string, object> additionalProperties);
-
 #endif
 
-#if AWS_ASYNC_API
         Task<ImmutableCredentials> CredentialsFromSsoAccessTokenAsync(string accountId, string roleName, string accessToken, IDictionary<string, object> additionalProperties);
-#endif
     }
 
     /// <summary>
@@ -47,11 +44,8 @@ namespace Amazon.Runtime.SharedInterfaces
     {
 #if BCL
         void Logout(string accessToken);
-
 #endif
 
-#if AWS_ASYNC_API
         Task LogoutAsync(string accessToken, CancellationToken cancellationToken = default);
-#endif
     }
 }

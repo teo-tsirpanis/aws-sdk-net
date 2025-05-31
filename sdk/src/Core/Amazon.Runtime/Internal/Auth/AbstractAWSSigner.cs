@@ -105,7 +105,6 @@ namespace Amazon.Runtime.Internal.Auth
 
         public abstract void Sign(IRequest request, IClientConfig clientConfig, RequestMetrics metrics, BaseIdentity identity);
 
-#if AWS_ASYNC_API
         public virtual System.Threading.Tasks.Task SignAsync(
             IRequest request, 
             IClientConfig clientConfig,
@@ -114,13 +113,8 @@ namespace Amazon.Runtime.Internal.Auth
             CancellationToken token = default)
         {
             Sign(request, clientConfig, metrics, identity);
-#if NETSTANDARD
             return Task.CompletedTask;
-#else
-            return Task.FromResult(0);
-#endif
         }
-#endif
 
         public abstract ClientProtocol Protocol { get; }
 

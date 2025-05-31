@@ -219,7 +219,6 @@ namespace Amazon.Runtime
             return response;
         }
 
-#if AWS_ASYNC_API
 
         protected System.Threading.Tasks.Task<TResponse> InvokeAsync<TResponse>(
             AmazonWebServiceRequest request,
@@ -249,7 +248,6 @@ namespace Amazon.Runtime
             SetupCSMHandler(executionContext.RequestContext);
             return this.RuntimePipeline.InvokeAsync<TResponse>(executionContext);
         }
-#endif
 
         protected virtual IEnumerable<DiscoveryEndpointBase> EndpointOperation(EndpointOperationContextBase context) { return null; }
 

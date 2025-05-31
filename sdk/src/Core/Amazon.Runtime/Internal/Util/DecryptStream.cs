@@ -22,12 +22,9 @@
 
 using System;
 using System.IO;
-using Amazon.Runtime;
 using System.Security.Cryptography;
-#if AWS_ASYNC_API
 using System.Threading;
 using System.Threading.Tasks;
-#endif
 
 namespace Amazon.Runtime.Internal.Util
 {
@@ -88,7 +85,6 @@ namespace Amazon.Runtime.Internal.Util
             return result;
         }
 
-#if AWS_ASYNC_API
         /// <summary>
         /// Asynchronously reads a sequence of bytes from the current stream and advances
         /// the position within the stream by the number of bytes read.
@@ -119,14 +115,7 @@ namespace Amazon.Runtime.Internal.Util
             int result = await this.CryptoStream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
             return result;
         }
-#endif
 
-#if BCL
-        public override void Close()
-        {
-            base.Close();
-        }
-#endif
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
         /// DecryptStream does not support seeking, this will always be false.
