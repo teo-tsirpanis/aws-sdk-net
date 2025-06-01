@@ -13,10 +13,8 @@ using Amazon.Util;
 
 using System.Text.Json;
 
-using Amazon.Runtime.Internal.Util;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using Amazon.Util.Internal;
 
 namespace Amazon.SimpleNotificationService.Util
 {
@@ -228,7 +226,7 @@ namespace Amazon.SimpleNotificationService.Util
         /// <returns>True if the message type is a notification message.</returns>        
         public bool IsNotificationType
         {
-            get { return this.Type == Message.MESSAGE_TYPE_NOTIFICATION;}
+            get { return this.Type == Message.MESSAGE_TYPE_NOTIFICATION; }
         }
 
         /// <summary>
@@ -341,16 +339,6 @@ namespace Amazon.SimpleNotificationService.Util
             var bytesToSign = GetMessageBytesToSign();
             var certificate = GetX509Certificate();
 
-#if BCL
-            string cryptoConfig;
-            if (this.SignatureVersion.Equals(SHA1_SIGNATURE_VERSION))
-                cryptoConfig = CryptoConfig.MapNameToOID("SHA1");
-            else
-                cryptoConfig = CryptoConfig.MapNameToOID("SHA256");
-
-            var rsa = certificate.PublicKey.Key as RSACryptoServiceProvider;
-            return rsa.VerifyData(bytesToSign, cryptoConfig, Convert.FromBase64String(this.Signature));
-#else
             HashAlgorithmName hashAlgorithmName;
             if (this.SignatureVersion.Equals(SHA1_SIGNATURE_VERSION))
                 hashAlgorithmName = HashAlgorithmName.SHA1;
@@ -359,7 +347,6 @@ namespace Amazon.SimpleNotificationService.Util
 
             var rsa = certificate.GetRSAPublicKey();
             return rsa.VerifyData(bytesToSign, Convert.FromBase64String(this.Signature), hashAlgorithmName, RSASignaturePadding.Pkcs1);
-#endif
         }
 
         private byte[] GetMessageBytesToSign()
@@ -373,7 +360,7 @@ namespace Amazon.SimpleNotificationService.Util
             else
                 throw new AmazonClientException("Unknown message type: " + this.Type);
 
-            byte[] bytesToSign = UTF8Encoding.UTF8.GetBytes(stringToSign);
+            byte[] bytesToSign = Encoding.UTF8.GetBytes(stringToSign);
             return bytesToSign;
         }
 
@@ -460,50 +447,41 @@ namespace Amazon.SimpleNotificationService.Util
         {
             lock (certificateCache)
             {
-                if (certificateCache.ContainsKey(this.SigningCertURL))
+                if (certificateCache.TryGetValue(this.SigningCertURL, out var certificate))
                 {
-                    return certificateCache[this.SigningCertURL];
+                    return certificate;
                 }
-                else
+                for (int retries = 1; retries <= MAX_RETRIES; retries++)
                 {
-                    for (int retries = 1; retries <= MAX_RETRIES; retries++)
+                    try
                     {
-                        try
-                        {
 #pragma warning disable SYSLIB0014 // Need to use HttpWebRequest while the SDK targets .NET Framework 3.5
-                            HttpWebRequest request = HttpWebRequest.Create(this.SigningCertURL) as HttpWebRequest;
+                        HttpWebRequest request = WebRequest.Create(this.SigningCertURL) as HttpWebRequest;
 #pragma warning restore SYSLIB0014
-#if BCL
-                            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-#else
-                            // It's illegal to await an async method within a lock statement block.
-                            // So just get the response on this thread.
-                            using (HttpWebResponse response = AsyncHelpers.RunSync(request.GetResponseAsync) as HttpWebResponse)
-#endif
-                            using (var reader = new StreamReader(response.GetResponseStream()))
-                            {
-
-                                var content = reader.ReadToEnd().Trim();
-
-                                X509Certificate2 certificate = new X509Certificate2(ParsePemContent(content));
-                                certificateCache[this.SigningCertURL] = certificate;
-                                return certificate;
-                            }
-                        }
-                        catch(Exception e)
+                        using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                        using (var reader = new StreamReader(response.GetResponseStream()))
                         {
-                            if (retries == MAX_RETRIES)
-                                throw new AmazonClientException(string.Format(CultureInfo.InvariantCulture,
-                                    "Unable to download signing cert after {0} retries", MAX_RETRIES), e);
-                            else
-                                Thread.Sleep((int)(Math.Pow(4, retries) * 100));
+
+                            var content = reader.ReadToEnd().Trim();
+
+                            certificate = new X509Certificate2(ParsePemContent(content));
+                            certificateCache[this.SigningCertURL] = certificate;
+                            return certificate;
                         }
                     }
+                    catch (Exception e)
+                    {
+                        if (retries == MAX_RETRIES)
+                            throw new AmazonClientException(string.Format(CultureInfo.InvariantCulture,
+                                "Unable to download signing cert after {0} retries", MAX_RETRIES), e);
+                        else
+                            Thread.Sleep((int)(Math.Pow(4, retries) * 100));
+                    }
                 }
-
-                throw new AmazonClientException(string.Format(CultureInfo.InvariantCulture,
-                    "Unable to download signing cert after {0} retries", MAX_RETRIES));
             }
+
+            throw new AmazonClientException(string.Format(CultureInfo.InvariantCulture,
+                "Unable to download signing cert after {0} retries", MAX_RETRIES));
         }
         #endregion
 
