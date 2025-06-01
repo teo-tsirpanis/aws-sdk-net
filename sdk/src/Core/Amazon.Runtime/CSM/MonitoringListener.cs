@@ -14,7 +14,6 @@
  */
 
 using System;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +27,7 @@ namespace Amazon.Runtime
     /// This is a singleton class and is created once 
     /// per AmazonServiceClient.
     /// </summary>
-    internal sealed class MonitoringListener:IDisposable
+    internal sealed class MonitoringListener : IDisposable
     {
         private static readonly MonitoringListener csmMonitoringListenerInstance = new MonitoringListener();
         /// <summary>
@@ -48,7 +47,7 @@ namespace Amazon.Runtime
 
         static MonitoringListener()
         {
-            
+
         }
         public static MonitoringListener Instance
         {
@@ -63,18 +62,16 @@ namespace Amazon.Runtime
         /// </summary>
         public void PostMessagesOverUDP(string response)
         {
-#if BCL
             try
             {
-                _udpClient.Send(Encoding.UTF8.GetBytes(response),
-                        Encoding.UTF8.GetBytes(response).Length, _host, _port);
+                byte[] bytes = Encoding.UTF8.GetBytes(response);
+                _udpClient.Send(bytes, bytes.Length, _host, _port);
             }
             catch (Exception e)
             {
                 // If UDP post fails, the errors is logged and is returned without rethrowing the exception
                 logger.InfoFormat("Error when posting UDP datagrams. " + e.Message);
             }
-#endif
         }
 
         /// <summary>
@@ -84,35 +81,19 @@ namespace Amazon.Runtime
         {
             try
             {
-                await _udpClient.SendAsync(Encoding.UTF8.GetBytes(response),
-                    Encoding.UTF8.GetBytes(response).Length, _host, _port).ConfigureAwait(false);
+                byte[] bytes = Encoding.UTF8.GetBytes(response);
+                await _udpClient.SendAsync(bytes, bytes.Length, _host, _port).ConfigureAwait(false);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 // If UDP post fails, the errors is logged and is returned without rethrowing the exception
                 logger.InfoFormat("Error when posting UDP datagrams. " + e.Message);
             }
         }
 
-        private bool _disposed;
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        private void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-            if (disposing)
-            {
-#if NETSTANDARD
-                _udpClient.Dispose();
-#else
-                _udpClient.Close();
-#endif
-            }
-
-            _disposed = true;
+            _udpClient.Dispose();
         }
     }
 }
